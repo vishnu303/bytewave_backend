@@ -1,0 +1,27 @@
+version: '3.8'
+services:
+  app:
+    build: .
+    ports:
+      - "8000:8000"
+    depends_on:
+      - transmission
+    volumes:
+      - ./downloads:/app/downloads  
+    restart: always
+
+  transmission:
+    image: linuxserver/transmission:latest
+    ports:
+      - "9091:9091"
+      - "51413:51413"  
+      - "51413:51413/udp"  
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=UTC
+      - USER=vishnu
+      - PASS=demo355348
+    volumes:
+      - ./downloads:/downloads
+    restart: always
