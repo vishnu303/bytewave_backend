@@ -1,9 +1,15 @@
 from sqlalchemy import create_engine, Column, Integer, String, Float
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
+import os
 
 Base = declarative_base()
-engine = create_engine("sqlite:///files.db")
+
+# Use a more flexible path approach
+data_dir = os.environ.get("DATA_DIR", "/app/data")
+os.makedirs(data_dir, exist_ok=True)
+
+engine = create_engine(f"sqlite:///{os.path.join(data_dir, 'files.db')}")
 SessionLocal = sessionmaker(bind=engine)
 
 class File(Base):
@@ -13,7 +19,13 @@ class File(Base):
     size = Column(Integer)
     timestamp = Column(Float)
 
-Base.metadata.create_all(engine)
+def init_db():
+    try:
+        Base.metadata.create_all(engine, checkfirst=True)
+    except Exception as e:
+        print(f"Database initialization note: {e}")
+
+init_db()
 
 def get_db():
     db = SessionLocal()
